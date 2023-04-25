@@ -49,6 +49,7 @@
 # 2023-02-06 - Updated to FMU-explore 0.9.6e including parCheck...
 # 2023-02-06 - Play with the idea of parCalc - but dropped
 # 2023-04-05 - Update FMU-explore 0.9.7
+# 2023-04-24 - Correcteion of plotType 'Elution' concerning handling of time
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -235,13 +236,6 @@ parCheck.append("parDict['start_desorption'] <= parDict['stationary_desorption']
 parCheck.append("parDict['stationary_desorption'] <= parDict['stop_desorption']")
 parCheck.append("parDict['start_uv'] > parDict['stop_uv']")
 
-# Parametrar for calculating model parameters
-#global parCalc; parCalc = {}
-#parCalc.append('pI_P')
-#parCalc.append('pI_A')
-#parCalc.append('pI_resin')
-
-
 # Create list of diagrams to be plotted by simu()
 global diagrams
 diagrams = []
@@ -374,17 +368,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model.get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model.get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model.get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model.get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model.get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model.get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model.get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model.get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -771,19 +765,19 @@ def newplot(title='IEC', plotType='Loading'):
       ax1.set_ylabel('c[P], c[A] [mg/mL]')
 
       ax2.grid()
-      ax2.set_ylabel('c [mS/cm]')      
+      ax2.set_ylabel('c[E]')      
 
       ax3.grid()
-      ax3.set_ylabel('F load [mL/min]')
+      ax3.set_ylabel('F_sample')
 
       ax4.grid()
-      ax4.set_ylabel('Fb1 [mL/min]')
+      ax4.set_ylabel('Fb1')
 
       ax5.grid()
-      ax5.set_ylabel('Fb2 [mL/min]')
+      ax5.set_ylabel('Fb2')
 
       ax6.grid()
-      ax6.set_ylabel('V [mL]')
+      ax6.set_ylabel('V_pool')
       ax6.set_xlabel('Pumped liquid volume [CV]')
 
       # Part of plot made after simulation
