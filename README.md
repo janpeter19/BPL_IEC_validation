@@ -14,6 +14,8 @@ You start up the notebook in Colab by pressing here
 
 You can continue in the notebook and make new simulations and follow the examples given. Here are many things to explore!
 
+See also the realated repository: BPL_IEC_operation.
+
 Note that:
 * The script occassionaly get stuck during installation. Then just close the notebook and start from scratch.
 * Remember, you need to have a google-account!
