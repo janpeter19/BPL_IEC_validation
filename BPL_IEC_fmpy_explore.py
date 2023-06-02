@@ -52,6 +52,7 @@
 # 2023-04-17 - Modify for FMU-explore 0.9.7 for FMPy
 # 2023-04-18 - Modify for FMU-explore 0.9.8 for FMPy - update model_get() for Boolean variables
 # 2023-05-31 - Adjusted to from importlib.meetadata import version
+# 2023-06-02 - Add logging of a few variables
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -245,16 +246,23 @@ parLocation['stop_pooling'] = 'control_pooling.stop'
 parLocation['start_uv'] = 'control_pooling.start_uv_pooling'
 parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
 
-# Extra and also duplicate names only for describe()     
-parLocation['VFR'] = 'F'
-parLocation['area'] = 'column.area'
-parLocation['V'] = 'column.V'
-parLocation['V_m'] = 'column.V_m'
-
 # Extra only for describe()
 global key_variables; key_variables = []
 parLocation['V'] = 'column.V'; key_variables.append(parLocation['V'])
 parLocation['scale_volume'] = 'scale_volume'; key_variables.append(parLocation['scale_volume'])
+parLocation['VFR'] = 'F'; key_variables.append(parLocation['VFR'])
+parLocation['area'] = 'column.area'; key_variables.append(parLocation['area'])
+parLocation['V_m'] = 'column.V_m'; key_variables.append(parLocation['V_m'])
+
+parLocation['column.column_section[1].V_m'] = 'column.column_section[1].V_m'; 
+key_variables.append(parLocation['column.column_section[1].V_m'])
+
+parLocation['tank_mixing.outlet.c[1]'] ='tank_mixing.outlet.c[1]'; 
+key_variables.append(parLocation['tank_mixing.outlet.c[1]'])
+
+parLocation['control_desorption_buffer.scaling'] ='control_desorption_buffer.scaling'; 
+key_variables.append(parLocation['control_desorption_buffer.scaling'])
+
 
 # Parameter value check - especially for hysteresis to avoid runtime error
 global parCheck; parCheck = []
@@ -396,17 +404,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -429,17 +437,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -462,17 +470,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'))/model_get('column.V'), \
+      diagrams.append("ax1.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'))/model_get('column.V'), \
+      diagrams.append("ax1.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'))/model_get('column.V'), \
+      diagrams.append("ax2.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'))/model_get('column.V'), \
+      diagrams.append("ax2.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -533,20 +541,20 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
 
-      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['conductivity_detector.value'], color='m', linestyle=linetype)")
       diagrams.append("ax3.set_xlim(left=0)") 
 
@@ -654,21 +662,21 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='E', color='m', linestyle=linetype)")
       diagrams.append("ax1.legend()")
       
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)")     
-      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)")                
-      diagrams.append("ax4.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax4.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)") 
-      diagrams.append("ax5.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax5.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_harvest.V'], color='g', linestyle=linetype)") 
 
    elif plotType == 'Elution-conductivity-vs-volume-combined':
@@ -704,22 +712,22 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.legend()")
       diagrams.append("ax1.set_ylim([0, 1.05*max(sim_res['column.column_section[8].outlet.c[1]'])])")
       
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['conductivity_detector.value'], color='m', linestyle=linetype)")      
-      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)")     
-      diagrams.append("ax4.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax4.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)")                
-      diagrams.append("ax5.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax5.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)") 
-      diagrams.append("ax6.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax6.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_harvest.V'], color='g', linestyle=linetype)") 
       diagrams.append("ax1.set_xlim(0)")
       diagrams.append("ax2.set_xlim(0)")
@@ -853,21 +861,21 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.legend()")
       
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['conductivity_detector.value'], color='m', linestyle=linetype)")      
-      diagrams.append("ax3.step(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax3.step(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)")     
-      diagrams.append("ax4.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax4.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)")                
-      diagrams.append("ax5.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax5.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)") 
-      diagrams.append("ax6.plot(sim_res['time']-parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax6.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_harvest.V'], color='g', linestyle=linetype)") 
 
    elif plotType == 'Elution-pooling':
@@ -891,23 +899,23 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
       diagrams.append("ax2.legend()")
       
-      diagrams.append("ax3.step(sim_res['time'] - parDict['start_desorption']/model_get('control_buffer2.scaling'), \
+      diagrams.append("ax3.step(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['control_pooling.out'], color='k', linestyle=linetype)")
       diagrams.append("ax3.set_xlim(left=0)")      
 
