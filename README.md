@@ -10,7 +10,10 @@ You see in the diagrams how the main "product" protein P (blue) and an "antagoni
 The column is dived in 8 sections. The inlet is to the left and outlet to the right. In the upper diagram you see how the concentration profile evolve over time. In the lower diagram you see the final steady-state concentration profile.
 
 You start up the notebook in Colab by pressing here
-[start BPL notebook](https://colab.research.google.com/github/janpeter19/BPL_IEC_validation/blob/main/BPL_IEC_validation_colab.ipynb) Then you in the menu choose Runtime/Run all. The installation of software on the remote Google server takes a few minutes. The subsequent execution of the simulations of IEC operation take just a seconds or so. 
+[start BPL notebook](https://colab.research.google.com/github/janpeter19/BPL_IEC_validation/blob/main/BPL_IEC_validation_colab.ipynb) 
+or alternatively (experimentally)
+[start BPL notebook with FMPy](https://github.com/janpeter19/BPL_IEC_validation/blob/main/BPL_IEC_validation_fmpy_colab.ipynb).
+Then you in the menu choose Runtime/Run all. The installation of software on the remote Google server takes a few minutes. The subsequent execution of the simulations of IEC operation take just a seconds or so. 
 
 You can continue in the notebook and make new simulations and follow the examples given. Here are many things to explore!
 
