@@ -1109,18 +1109,19 @@ def model_get(parLoc, model_description=model_description):
          try:
             if par_var[k].name in start_values.keys():
                   value = start_values[par_var[k].name]
-            elif par_var[k].variability in ['constant']:        
-                  value = float(par_var[k].start)                          
-            elif par_var[k].variability in ['fixed', 'continuous']:
+            elif par_var[k].variability in ['constant', 'fixed']:        
+                  value = float(par_var[k].start)     
+            elif par_var[k].variability == 'continuous':
                try:
-                  value = sim_res[par_var[k].name][-1]
+                  timeSeries = sim_res[par_var[k].name]
+                  value = timeSeries[-1]
                except (AttributeError, ValueError):
                   value = None
                   print('Variable not logged')
             else:
                value = None
          except NameError:
-            print('Error: Information available after first simulation')
+            print('Error: Information available after first simution')
             value = None
    return value
 
@@ -1261,7 +1262,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
             validate = False,
             start_time = prevFinalTime,
             stop_time = prevFinalTime + simulationTime,
-            output_interval = simulationTime/options['NCP'],
+            output_interval = simulationTime/options['ncp'],
             record_events = True,
             start_values = start_values,
             fmi_call_logger = None,
@@ -1365,12 +1366,12 @@ def describe_general(name, decimals):
 # Plot process diagram
 def process_diagram(fmu_model=fmu_model, fmu_process_diagram=fmu_process_diagram):   
    try:
-       processDiagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
+       process_diagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
    except KeyError:
        print('No processDiagram.png file in the FMU, but try the file on disk.')
-       processDiagram = fmu_process_diagram
+       process_diagram = fmu_process_diagram
    try:
-       plt.imshow(img.imread(processDiagram))
+       plt.imshow(img.imread(process_diagram))
        plt.axis('off')
        plt.show()
    except FileNotFoundError:
