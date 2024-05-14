@@ -52,6 +52,7 @@
 # 2023-04-24 - Correcteion of plotType 'Elution' concerning handling of time
 # 2023-05-31 - Adjusted to from importlib.meetadata import version
 # 2023-09-14 - Update FMU-explore 0.9.8 with process diagram
+# 2024-05-13 - Polish the script
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -78,11 +79,6 @@ if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 #------------------------------------------------------------------------------------------------------------------
 #  Setup application FMU
 #------------------------------------------------------------------------------------------------------------------
-
-# Define model file name and class name 
-#model_name = 'BPL_IEC.Column' 
-#model_file = 'BPL_IEC.mo'
-#library_file = 'z:/BPL/package.mo'
 
 # Provde the right FMU and load for different platforms in user dialogue:
 global fmu_model, model, opts
@@ -135,7 +131,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.1.2 prel' 
+   BPL_version = 'Bioprocess Library version 2.2.0' 
 else:    
    print('There is no FMU for this platform')
 
@@ -1032,7 +1028,7 @@ def describe(name, decimals=3):
          
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore version 0.9.9'
+FMU_explore = 'FMU-explore version 1.0.0'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
