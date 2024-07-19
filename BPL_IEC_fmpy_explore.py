@@ -58,6 +58,8 @@
 # 2024-05-14 - Polish the script
 # 2024-05-20 - Updated the OpenModelica version to 1.23.0-dev
 # 2024-06-01 - Corrected model_get() to handle string values as well - improvement very small and keep ver 1.0.0
+# 2024-07-18 - Adapted for test with BPL 2.2.1 - GUI and BPL_GUI_IEC validation
+# 2024-07-19 - Corrected parLocation for LFR, and scale_volume
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -103,7 +105,7 @@ elif platform.system() == 'Linux':
       fmu_model ='BPL_IEC_Column_system_linux_jm_cs.fmu'      
       model_description = read_model_description(fmu_model) 
    if flag_vendor in ['OM','om']:
-      print('Linux - run FMU pre-comiled OpenModelica 1.23.0-dev') 
+      print('Linux - run FMU pre-comiled OpenModelica') 
       if flag_type in ['CS','cs']:         
          fmu_model ='BPL_IEC_Column_system_linux_om_cs.fmu'    
          model_description = read_model_description(fmu_model) 
@@ -133,7 +135,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.2.0' 
+   BPL_version = 'Bioprocess Library version 2.2.1 - GUI' 
 else:    
    print('There is no FMU for this platform')
 
@@ -148,7 +150,7 @@ timeDiscreteStates = {}
 component_list_minimum = []
 
 # Provide process diagram on disk
-fmu_process_diagram ='IBPL_IEC_process_diagram_omnigraffle.png'
+fmu_process_diagram ='BPL_IEC_process_diagram_om.png'
 
 #------------------------------------------------------------------------------------------------------------------
 #  Specific application constructs: stateDict, parDict, diagrams, newplot(), describe()
@@ -204,8 +206,8 @@ parDict['E_in_desorption_buffer'] = 0.3
 
 parDict['LFR'] = 0.67
 
-parDict['scale_volume'] = True
-parDict['gradient'] = True
+#parDict['scale_volume'] = True
+#parDict['gradient'] = True
 parDict['start_adsorption'] = 0
 parDict['stop_adsorption'] = 67
 parDict['start_desorption'] = 200
@@ -236,10 +238,10 @@ parLocation['A_in'] = 'tank_sample.c_in[2]'
 parLocation['E_in'] = 'tank_sample.c_in[3]'
 parLocation['E_in_desorption_buffer'] = 'tank_buffer2.c_in[3]'
 
-parLocation['LFR'] = 'u'
+parLocation['LFR'] = 'linear_flow_rate.val'
 
-parLocation['scale_volume'] = 'scale_volume'
-parLocation['gradient'] = 'control_desorption_buffer.gradient'
+#parLocation['scale_volume'] = 'scale_volume'
+#parLocation['gradient'] = 'control_desorption_buffer.gradient'
 parLocation['start_adsorption'] = 'control_sample.start'
 parLocation['stop_adsorption'] = 'control_sample.stop'
 parLocation['start_desorption'] = 'control_desorption_buffer.start'
@@ -256,7 +258,7 @@ parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
 # Extra only for describe()
 global key_variables; key_variables = []
 parLocation['V'] = 'column.V'; key_variables.append(parLocation['V'])
-parLocation['scale_volume'] = 'scale_volume'; key_variables.append(parLocation['scale_volume'])
+#parLocation['scale_volume'] = 'scale_volume'; key_variables.append(parLocation['scale_volume'])
 parLocation['VFR'] = 'F'; key_variables.append(parLocation['VFR'])
 parLocation['area'] = 'column.area'; key_variables.append(parLocation['area'])
 parLocation['V_m'] = 'column.V_m'; key_variables.append(parLocation['V_m'])
