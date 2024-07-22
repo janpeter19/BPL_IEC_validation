@@ -264,6 +264,7 @@ parLocation['V'] = 'column.V'; key_variables.append(parLocation['V'])
 parLocation['VFR'] = 'F'; key_variables.append(parLocation['VFR'])
 parLocation['area'] = 'column.area'; key_variables.append(parLocation['area'])
 parLocation['V_m'] = 'column.V_m'; key_variables.append(parLocation['V_m'])
+parLocation['column.n'] = 'column.n'; key_variables.append(parLocation['column.n'])
 
 parLocation['column.column_section[1].V_m'] = 'column.column_section[1].V_m'; 
 key_variables.append(parLocation['column.column_section[1].V_m'])
