@@ -61,6 +61,7 @@
 # 2024-07-18 - Adapted for test with BPL 2.2.1 - GUI and BPL_GUI_IEC validation
 # 2024-07-19 - Corrected parLocation for LFR, and scale_volume
 # 2024-07-20 - Correction parLocation for access to calculated parameters
+# 2024-07-22 - Update of model_get() for string to float
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -1116,7 +1117,7 @@ def model_get(parLoc, model_description=model_description):
                if par_var[k].type in ['Integer', 'Real']: 
                   value = float(par_var[k].start)      
                if par_var[k].type in ['String']: 
-                  value = par_var[k].start                        
+                  value = float(par_var[k].start)                               
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
