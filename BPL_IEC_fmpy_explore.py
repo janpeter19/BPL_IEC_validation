@@ -62,6 +62,7 @@
 # 2024-07-19 - Corrected parLocation for LFR, and scale_volume
 # 2024-07-20 - Correction parLocation for access to calculated parameters
 # 2024-07-22 - Update of model_get() for string to float
+# 2024-08-12 - Added in simu() key_variables as global and updated model_get() for calculated parameter
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -261,7 +262,7 @@ parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
 global key_variables; key_variables = []
 parLocation['V'] = 'column.V'; key_variables.append(parLocation['V'])
 #parLocation['scale_volume'] = 'scale_volume'; key_variables.append(parLocation['scale_volume'])
-parLocation['VFR'] = 'F'; key_variables.append(parLocation['VFR'])
+#parLocation['VFR'] = 'F'; key_variables.append(parLocation['VFR'])
 parLocation['area'] = 'column.area'; key_variables.append(parLocation['area'])
 parLocation['V_m'] = 'column.V_m'; key_variables.append(parLocation['V_m'])
 parLocation['column.n'] = 'column.n'; key_variables.append(parLocation['column.n'])
@@ -1072,7 +1073,7 @@ def describe(name, decimals=3):
          
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore for FMPy version 1.0.0'
+FMU_explore = 'FMU-explore for FMPy version 1.0.1'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
@@ -1113,16 +1114,15 @@ def model_get(parLoc, model_description=model_description):
       if par_var[k].name == parLoc:
          try:
             if par_var[k].name in start_values.keys():
-                  value = start_values[par_var[k].name]
-            elif par_var[k].variability in ['constant', 'fixed']: 
-               if par_var[k].type in ['Integer', 'Real']: 
-                  value = float(par_var[k].start)      
-               if par_var[k].type in ['String']: 
-                  value = float(par_var[k].start)                               
+               value = start_values[par_var[k].name]
+            elif par_var[k].causality in ['parameter']: 
+               value = float(par_var[k].start)  
+            elif par_var[k].causality in ['calculatedParameter']: 
+               value = float(sim_res[par_var[k].name][0])      
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
-                  value = timeSeries[-1]
+                  value = float(timeSeries[-1])
                except (AttributeError, ValueError):
                   value = None
                   print('Variable not logged')
@@ -1208,7 +1208,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
    """Model loaded and given intial values and parameter before, and plot window also setup before."""   
    
    # Global variables
-   global sim_res, prevFinalTime, stateDict, stateDictInitial, stateDictInitialLoc, start_values
+   global sim_res, prevFinalTime, stateDict, stateDictInitial, stateDictInitialLoc, start_values, key_variables
    
    # Simulation flag
    simulationDone = False
