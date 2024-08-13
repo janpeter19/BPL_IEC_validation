@@ -63,6 +63,7 @@
 # 2024-07-20 - Correction parLocation for access to calculated parameters
 # 2024-07-22 - Update of model_get() for string to float
 # 2024-08-12 - Added in simu() key_variables as global and updated model_get() for calculated parameter
+# 2024-08-13 - Corrected model_get() to also handle constants like column.n - call it FMU-explore for FMPy 1.0.1
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -1113,12 +1114,14 @@ def model_get(parLoc, model_description=model_description):
    for k in range(len(par_var)):
       if par_var[k].name == parLoc:
          try:
-            if par_var[k].name in start_values.keys():
-               value = start_values[par_var[k].name]
+            if (par_var[k].causality in ['local']) & (par_var[k].variability in ['constant']):
+               value = float(par_var[k].start)                 
             elif par_var[k].causality in ['parameter']: 
                value = float(par_var[k].start)  
             elif par_var[k].causality in ['calculatedParameter']: 
-               value = float(sim_res[par_var[k].name][0])      
+               value = float(sim_res[par_var[k].name][0]) 
+            elif par_var[k].name in start_values.keys():
+               value = start_values[par_var[k].name]   
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
