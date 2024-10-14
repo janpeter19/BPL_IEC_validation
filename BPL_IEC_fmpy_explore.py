@@ -114,7 +114,7 @@ elif platform.system() == 'Linux':
          fmu_model ='BPL_IEC_Column_system_linux_om_cs.fmu'    
          model_description = read_model_description(fmu_model) 
       if flag_type in ['ME','me']:         
-         fmu_model ='newBPL_IEC_Column_system_linux_om_me.fmu' 
+         fmu_model ='BPL_IEC_Column_system_linux_om_me.fmu' 
          model_description = read_model_description(fmu_model) 
    else:    
       print('There is no FMU for this platform')
@@ -139,7 +139,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.2.1 - GUI' 
+   BPL_version = 'Bioprocess Library version 2.2.2 - GUI' 
 else:    
    print('There is no FMU for this platform')
 

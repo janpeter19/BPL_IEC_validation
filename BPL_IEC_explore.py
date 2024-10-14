@@ -104,7 +104,7 @@ elif platform.system() == 'Linux':
          fmu_model ='BPL_IEC_Column_system_linux_om_cs.fmu'    
          model = load_fmu(fmu_model, log_level=0)
       if flag_type in ['ME','me']:         
-         fmu_model ='newBPL_IEC_Column_system_linux_om_me.fmu' 
+         fmu_model ='BPL_IEC_Column_system_linux_om_me.fmu' 
          model = load_fmu(fmu_model, log_level=0)
    else:    
       print('There is no FMU for this platform')
