@@ -56,6 +56,7 @@
 # 2024-05-20 - Updated the OpenModelica version to 1.23.0-dev
 # 2024-07-17 - Adapt for test with BPL 2.2.1 - GUI
 # 2024-07-19 - Adjust for launch with Colab PyFMI and the Linux FMU name temporarily changed
+# 2024-11-07 - Update for BPL 2.3.0
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -131,7 +132,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.2.2 - GUI' 
+   BPL_version = 'Bioprocess Library version 2.3.0' 
 else:    
    print('There is no FMU for this platform')
 
@@ -210,7 +211,7 @@ parLocation['A_in'] = 'tank_sample.c_in[2]'
 parLocation['E_in'] = 'tank_sample.c_in[3]'
 parLocation['E_in_desorption_buffer'] = 'tank_buffer2.c_in[3]'
 
-parLocation['LFR'] = 'linear_flow_rate.val'
+parLocation['LFR'] = 'linear_flow_rate.value'
 
 #parLocation['scale_volume'] = 'scale_volume'
 #parLocation['gradient'] = 'control_desorption_buffer.gradient'

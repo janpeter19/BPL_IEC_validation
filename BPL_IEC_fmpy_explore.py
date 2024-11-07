@@ -64,6 +64,7 @@
 # 2024-07-22 - Update of model_get() for string to float
 # 2024-08-12 - Added in simu() key_variables as global and updated model_get() for calculated parameter
 # 2024-08-13 - Corrected model_get() to also handle constants like column.n - call it FMU-explore for FMPy 1.0.1
+# 2024-11-07 - Update for BPL 2.3.0
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -139,7 +140,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.2.2 - GUI' 
+   BPL_version = 'Bioprocess Library version 2.3.0' 
 else:    
    print('There is no FMU for this platform')
 
@@ -242,7 +243,7 @@ parLocation['A_in'] = 'tank_sample.c_in[2]'
 parLocation['E_in'] = 'tank_sample.c_in[3]'
 parLocation['E_in_desorption_buffer'] = 'tank_buffer2.c_in[3]'
 
-parLocation['LFR'] = 'linear_flow_rate.val'
+parLocation['LFR'] = 'linear_flow_rate.value'
 
 #parLocation['scale_volume'] = 'scale_volume'
 #parLocation['gradient'] = 'control_desorption_buffer.gradient'
