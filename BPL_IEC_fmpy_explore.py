@@ -110,7 +110,7 @@ elif platform.system() == 'Linux':
       fmu_model ='BPL_IEC_Column_system_linux_jm_cs.fmu'      
       model_description = read_model_description(fmu_model) 
    if flag_vendor in ['OM','om']:
-      print('Linux - run FMU pre-comiled OpenModelica') 
+      print('Linux - run FMU pre-compiled OpenModelica') 
       if flag_type in ['CS','cs']:         
          fmu_model ='BPL_IEC_Column_system_linux_om_cs.fmu'    
          model_description = read_model_description(fmu_model) 
