@@ -58,6 +58,7 @@
 # 2024-07-19 - Adjust for launch with Colab PyFMI and the Linux FMU name temporarily changed
 # 2024-11-07 - Update for BPL 2.3.0
 # 2025-06-13 - Test MSL 4.1.0 with OpenModelica genreated FMU
+# 2025-07-25 - Update for BPL 2.3.1
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -133,7 +134,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '4.1.0 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '4.1.0'
-   BPL_version = 'Bioprocess Library version 2.3.0' 
+   BPL_version = 'Bioprocess Library version 2.3.1' 
 else:    
    print('There is no FMU for this platform')
 
