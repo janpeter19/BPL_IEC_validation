@@ -67,6 +67,7 @@
 # 2024-11-07 - Update for BPL 2.3.0
 # 2025-06-13 - Test MSL 4.1.0 with OpenModelica genreated FMU
 # 2025-07-25 - Update for BPL 2.3.1
+# 2025-11-12 - Update FMU-explore 1.0.2
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -97,7 +98,7 @@ if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 #------------------------------------------------------------------------------------------------------------------
 
 # Provde the right FMU and load for different platforms in user dialogue:
-global fmu_model
+global model_description
 if platform.system() == 'Windows':
    print('Windows - run FMU pre-compiled JModelica 2.14')
    fmu_model ='BPL_IEC_Column_system_windows_jm_cs.fmu'       
@@ -160,75 +161,74 @@ component_list_minimum = []
 fmu_process_diagram ='BPL_IEC_process_diagram_om.png'
 
 #------------------------------------------------------------------------------------------------------------------
-#  Specific application constructs: stateDict, parDict, diagrams, newplot(), describe()
+#  Specific application constructs: stateValue, parValue, diagrams, newplot(), describe()
 #------------------------------------------------------------------------------------------------------------------
    
-# Create stateDict that later will be used to store final state and used for initialization in 'cont':
-global stateDict; stateDict =  {}
-stateDict = {variable.derivative.name:None for variable in model_description.modelVariables \
+# Create stateValue that later will be used to store final state and used for initialization in 'cont':
+stateValue =  {}
+stateValue = {variable.derivative.name:None for variable in model_description.modelVariables \
                                             if variable.derivative is not None}
-stateDict.update(timeDiscreteStates) 
+stateValue.update(timeDiscreteStates) 
 
-global stateDictInitial; stateDictInitial = {}
-for key in stateDict.keys():
+global stateValueInitial; stateValueInitial = {}
+for key in stateValue.keys():
     if not key[-1] == ']':
          if key[-3:] == 'I.y':
-            stateDictInitial[key] = key[:-10]+'I_start'
+            stateValueInitial[key] = key[:-10]+'I_start'
          elif key[-3:] == 'D.x':
-            stateDictInitial[key] = key[:-10]+'D_start'
+            stateValueInitial[key] = key[:-10]+'D_start'
          else:
-            stateDictInitial[key] = key+'_start'
+            stateValueInitial[key] = key+'_start'
     elif key[-3] == '[':
-        stateDictInitial[key] = key[:-3]+'_start'+key[-3:]
+        stateValueInitial[key] = key[:-3]+'_start'+key[-3:]
     elif key[-4] == '[':
-        stateDictInitial[key] = key[:-4]+'_start'+key[-4:]
+        stateValueInitial[key] = key[:-4]+'_start'+key[-4:]
     elif key[-5] == '[':
-        stateDictInitial[key] = key[:-5]+'_start'+key[-5:] 
+        stateValueInitial[key] = key[:-5]+'_start'+key[-5:] 
     else:
         print('The state vector has more than 1000 states')
         break
 
-global stateDictInitialLoc; stateDictInitialLoc = {}
-for value in stateDictInitial.values():
-    stateDictInitialLoc[value] = value
+stateValueInitialLoc = {}
+for value in stateValueInitial.values():
+    stateValueInitialLoc[value] = value
 
-# Create dictionaries parDict and parLocation
-global parDict; parDict = {}
+# Create dictionaries parValue and parLocation
+parValue = {}
+parValue['diameter'] = 7.136
+parValue['height'] = 20.0
+parValue['x_m'] = 0.30
+parValue['k1'] = 0.3
+parValue['k2'] = 0.05
+parValue['k3'] = 0.05
+parValue['k4'] = 0.3
+parValue['Q_av'] = 3.0
 
-parDict['diameter'] = 7.136
-parDict['height'] = 20.0
-parDict['x_m'] = 0.30
-parDict['k1'] = 0.3
-parDict['k2'] = 0.05
-parDict['k3'] = 0.05
-parDict['k4'] = 0.3
-parDict['Q_av'] = 3.0
+parValue['E_start'] = 0.0
 
-parDict['E_start'] = 0.0
+parValue['P_in'] = 0.3
+parValue['A_in'] = 0.3
+parValue['E_in'] = 0
+parValue['E_in_desorption_buffer'] = 0.3
 
-parDict['P_in'] = 0.3
-parDict['A_in'] = 0.3
-parDict['E_in'] = 0
-parDict['E_in_desorption_buffer'] = 0.3
+parValue['LFR'] = 0.67
 
-parDict['LFR'] = 0.67
+#parValue['scale_volume'] = True
+#parValue['gradient'] = True
+parValue['start_adsorption'] = 0
+parValue['stop_adsorption'] = 67
+parValue['start_desorption'] = 200
+parValue['x_start_desorption'] = 0.2
+parValue['stationary_desorption'] = 500
+parValue['stop_desorption'] = 600
+parValue['start_pooling'] = 308
+parValue['stop_pooling'] = 600
 
-#parDict['scale_volume'] = True
-#parDict['gradient'] = True
-parDict['start_adsorption'] = 0
-parDict['stop_adsorption'] = 67
-parDict['start_desorption'] = 200
-parDict['x_start_desorption'] = 0.2
-parDict['stationary_desorption'] = 500
-parDict['stop_desorption'] = 600
-parDict['start_pooling'] = 308
-parDict['stop_pooling'] = 600
+#parValue['uv_start_trend'] = 0
+parValue['start_uv'] = -1
+parValue['stop_uv'] = -2
 
-#parDict['uv_start_trend'] = 0
-parDict['start_uv'] = -1
-parDict['stop_uv'] = -2
-
-global parLocation; parLocation = {}
+parLocation = {}
 parLocation['diameter'] = 'column.diameter'
 parLocation['height'] = 'column.height'
 parLocation['x_m'] = 'column.x_m'
@@ -282,11 +282,11 @@ key_variables.append(parLocation['tank_mixing.outlet.c[1]'])
 
 
 # Parameter value check - especially for hysteresis to avoid runtime error
-global parCheck; parCheck = []
-parCheck.append("parDict['start_adsorption'] < parDict['stop_adsorption']")
-parCheck.append("parDict['start_desorption'] < parDict['stationary_desorption']")
-parCheck.append("parDict['stationary_desorption'] < parDict['stop_desorption']")
-parCheck.append("parDict['start_uv'] > parDict['stop_uv']")
+parCheck = []
+parCheck.append("parValue['start_adsorption'] < parValue['stop_adsorption']")
+parCheck.append("parValue['start_desorption'] < parValue['stationary_desorption']")
+parCheck.append("parValue['stationary_desorption'] < parValue['stop_desorption']")
+parCheck.append("parValue['start_uv'] > parValue['stop_uv']")
 
 
 # Create list of diagrams to be plotted by simu()
@@ -421,17 +421,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -454,17 +454,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -487,17 +487,17 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
+      diagrams.append("ax1.plot((sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
+      diagrams.append("ax1.plot((sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
+      diagrams.append("ax2.plot((sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot((sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
+      diagrams.append("ax2.plot((sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'))/model_get('column.V'), \
                                 0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
@@ -558,20 +558,20 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
 
-      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax3.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['conductivity_detector.value'], color='m', linestyle=linetype)")
       diagrams.append("ax3.set_xlim(left=0)") 
 
@@ -679,21 +679,21 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='E', color='m', linestyle=linetype)")
       diagrams.append("ax1.legend()")
       
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)")     
-      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax3.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)")                
-      diagrams.append("ax4.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax4.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)") 
-      diagrams.append("ax5.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax5.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_harvest.V'], color='g', linestyle=linetype)") 
 
    elif plotType == 'Elution-conductivity-vs-volume-combined':
@@ -729,22 +729,22 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.legend()")
       diagrams.append("ax1.set_ylim([0, 1.05*max(sim_res['column.column_section[8].outlet.c[1]'])])")
       
-      diagrams.append("ax2.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['conductivity_detector.value'], color='m', linestyle=linetype)")      
-      diagrams.append("ax3.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax3.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)")     
-      diagrams.append("ax4.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax4.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)")                
-      diagrams.append("ax5.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax5.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)") 
-      diagrams.append("ax6.plot(sim_res['ackF'] - parDict['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax6.plot(sim_res['ackF'] - parValue['start_desorption']*model_get('F')/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['tank_harvest.V'], color='g', linestyle=linetype)") 
       diagrams.append("ax1.set_xlim(0)")
       diagrams.append("ax2.set_xlim(0)")
@@ -878,21 +878,21 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.legend()")
       
-      diagrams.append("ax2.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['conductivity_detector.value'], color='m', linestyle=linetype)")      
-      diagrams.append("ax3.step(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax3.step(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)")     
-      diagrams.append("ax4.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax4.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)")                
-      diagrams.append("ax5.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax5.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)") 
-      diagrams.append("ax6.plot(sim_res['time']-parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax6.plot(sim_res['time']-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                        sim_res['tank_harvest.V'], color='g', linestyle=linetype)") 
 
    elif plotType == 'Elution-pooling':
@@ -916,23 +916,23 @@ def newplot(title='IEC', plotType='Loading'):
 
       # Part of plot made after simulation
       diagrams.clear()    
-      diagrams.append("ax1.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time'] - parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)")
-      diagrams.append("ax1.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax1.plot(sim_res['time'] - parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)")
       diagrams.append("ax1.set_xlim(left=0)")
       diagrams.append("ax1.set_ylim([0,0.45])")
       diagrams.append("ax1.legend()")
  
-      diagrams.append("ax2.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time'] - parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)")
-      diagrams.append("ax2.plot(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax2.plot(sim_res['time'] - parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)")
       diagrams.append("ax2.set_xlim(left=0)") 
       diagrams.append("ax2.set_ylim([0,0.45])")
       diagrams.append("ax2.legend()")
       
-      diagrams.append("ax3.step(sim_res['time'] - parDict['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+      diagrams.append("ax3.step(sim_res['time'] - parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['control_pooling.out'], color='k', linestyle=linetype)")
       diagrams.append("ax3.set_xlim(left=0)")      
 
@@ -1077,20 +1077,20 @@ def describe(name, decimals=3):
          
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore for FMPy version 1.0.1'
+FMU_explore = 'FMU-explore for FMPy version 1.0.2'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
-def par(parDict=parDict, parCheck=parCheck, parLocation=parLocation, *x, **x_kwarg):
-   """ Set parameter values if available in the predefined dictionaryt parDict. """
+def par(*x, parValue=parValue, parCheck=parCheck, parLocation=parLocation, **x_kwarg):
+   """ Set parameter values if available in the predefined dictionaryt parValue. """
    x_kwarg.update(*x)
    x_temp = {}
    for key in x_kwarg.keys():
-      if key in parDict.keys():
+      if key in parValue.keys():
          x_temp.update({key: x_kwarg[key]})
       else:
          print('Error:', key, '- seems not an accessible parameter - check the spelling')
-   parDict.update(x_temp)
+   parValue.update(x_temp)
    
    parErrors = [requirement for requirement in parCheck if not(eval(requirement))]
    if not parErrors == []:
@@ -1098,7 +1098,7 @@ def par(parDict=parDict, parCheck=parCheck, parLocation=parLocation, *x, **x_kwa
       for index, item in enumerate(parErrors): print(item)
 
 # Define function init() for initial values update
-def init(parDict=parDict, *x, **x_kwarg):
+def init(*x, parValue=parValue,  **x_kwarg):
    """ Set initial values and the name should contain string '_start' to be accepted.
        The function can handle general parameter string location names if entered as a dictionary. """
    x_kwarg.update(*x)
@@ -1108,7 +1108,7 @@ def init(parDict=parDict, *x, **x_kwarg):
          x_init.update({key: x_kwarg[key]})
       else:
          print('Error:', key, '- seems not an initial value, use par() instead - check the spelling')
-   parDict.update(x_init)
+   parValue.update(x_init)
 
 # Define fuctions similar to pyfmi model.get(), model.get_variable_descirption(), model.get_variable_unit()
 def model_get(parLoc, model_description=model_description):
@@ -1117,18 +1117,17 @@ def model_get(parLoc, model_description=model_description):
    for k in range(len(par_var)):
       if par_var[k].name == parLoc:
          try:
-            if (par_var[k].causality in ['local']) & (par_var[k].variability in ['constant']):
-               value = float(par_var[k].start)                 
-            elif par_var[k].causality in ['parameter']: 
-               value = float(par_var[k].start)  
-            elif par_var[k].causality in ['calculatedParameter']: 
-               value = float(sim_res[par_var[k].name][0]) 
-            elif par_var[k].name in start_values.keys():
-               value = start_values[par_var[k].name]   
+            if par_var[k].name in start_values.keys():
+                  value = start_values[par_var[k].name]
+            elif par_var[k].variability in ['constant', 'fixed']: 
+               if par_var[k].type in ['Integer', 'Real']: 
+                  value = float(par_var[k].start)      
+               if par_var[k].type in ['String']: 
+                  value = par_var[k].start                        
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
-                  value = float(timeSeries[-1])
+                  value = timeSeries[-1]
                except (AttributeError, ValueError):
                   value = None
                   print('Variable not logged')
@@ -1138,7 +1137,7 @@ def model_get(parLoc, model_description=model_description):
             print('Error: Information available after first simution')
             value = None          
    return value
-
+   
 def model_get_variable_description(parLoc, model_description=model_description):
    """ Function corresponds to pyfmi model.get_variable_description() but returns just a value and not a list"""
    par_var = model_description.modelVariables
@@ -1154,7 +1153,7 @@ def model_get_variable_unit(parLoc, model_description=model_description):
    return value[0]
       
 # Define function disp() for display of initial values and parameters
-def disp(name='', decimals=3, mode='short'):
+def disp(name='', decimals=3, mode='short', parValue=parValue, parLocation=parLocation):
    """ Display intial values and parameters in the model that include "name" and is in parLocation list.
        Note, it does not take the value from the dictionary par but from the model. """
    
@@ -1164,7 +1163,7 @@ def disp(name='', decimals=3, mode='short'):
    
    if mode in ['short']:
       k = 0
-      for Location in [parLocation[k] for k in parDict.keys()]:
+      for Location in [parLocation[k] for k in parValue.keys()]:
          if name in Location:
             if type(model_get(Location)) != np.bool_:
                print(dict_reverser(parLocation)[Location] , ':', np.round(model_get(Location),decimals))
@@ -1173,7 +1172,7 @@ def disp(name='', decimals=3, mode='short'):
          else:
             k = k+1
       if k == len(parLocation):
-         for parName in parDict.keys():
+         for parName in parValue.keys():
             if name in parName:
                if type(model_get(Location)) != np.bool_:
                   print(parName,':', np.round(model_get(parLocation[parName]),decimals))
@@ -1182,14 +1181,14 @@ def disp(name='', decimals=3, mode='short'):
 
    if mode in ['long','location']:
       k = 0
-      for Location in [parLocation[k] for k in parDict.keys()]:
+      for Location in [parLocation[k] for k in parValue.keys()]:
          if name in Location:
             if type(model_get(Location)) != np.bool_:       
                print(Location,':', dict_reverser(parLocation)[Location] , ':', np.round(model_get(Location),decimals))
          else:
             k = k+1
       if k == len(parLocation):
-         for parName in parDict.keys():
+         for parName in parValue.keys():
             if name in parName:
                if type(model_get(Location)) != np.bool_:
                   print(parLocation[parName], ':', dict_reverser(parLocation)[Location], ':', parName,':', 
@@ -1210,11 +1209,14 @@ def show(diagrams=diagrams):
    for command in diagrams: eval(command)
 
 # Define simulation
-def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagrams=diagrams):
+def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagrams=diagrams, \
+         timeDiscreteStates=timeDiscreteStates, stateValue=stateValue, \
+         stateValueInitial=stateValueInitial, stateValueInitialLoc=stateValueInitialLoc, \
+         parValue=parValue, parLocation=parLocation, fmu_model=fmu_model):  
    """Model loaded and given intial values and parameter before, and plot window also setup before."""   
    
    # Global variables
-   global sim_res, prevFinalTime, stateDict, stateDictInitial, stateDictInitialLoc, start_values, key_variables
+   global sim_res, prevFinalTime, start_values
    
    # Simulation flag
    simulationDone = False
@@ -1232,7 +1234,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
    # Run simulation
    if mode in ['Initial', 'initial', 'init']: 
       
-      start_values = {parLocation[k]:parDict[k] for k in parDict.keys()}
+      start_values = {parLocation[k]:parValue[k] for k in parValue.keys()}
       
       # Simulate
       sim_res = simulate_fmu(
@@ -1244,7 +1246,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
          record_events = True,
          start_values = start_values,
          fmi_call_logger = None,
-         output = list(set(extract_variables(diagrams) + list(stateDict.keys()) + key_variables))
+         output = list(set(extract_variables(diagrams) + list(stateValue.keys()) + key_variables))
       )
       
       simulationDone = True
@@ -1255,20 +1257,20 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
          print("Error: Simulation is first done with default mode = init'")
          
       else:         
-         # Update parDictMod and create parLocationMod
-         parDictRed = parDict.copy()
+         # Update parValueMod and create parLocationMod
+         parValueRed = parValue.copy()
          parLocationRed = parLocation.copy()
-         for key in parDict.keys():
-            if parLocation[key] in stateDictInitial.values(): 
-               del parDictRed[key]  
+         for key in parValue.keys():
+            if parLocation[key] in stateValueInitial.values(): 
+               del parValueRed[key]  
                del parLocationRed[key]
-         parLocationMod = dict(list(parLocationRed.items()) + list(stateDictInitialLoc.items()))
+         parLocationMod = dict(list(parLocationRed.items()) + list(stateValueInitialLoc.items()))
    
-         # Create parDictMod and parLocationMod
-         parDictMod = dict(list(parDictRed.items()) + 
-            [(stateDictInitial[key], stateDict[key]) for key in stateDict.keys()])      
+         # Create parValueMod and parLocationMod
+         parValueMod = dict(list(parValueRed.items()) + 
+            [(stateValueInitial[key], stateValue[key]) for key in stateValue.keys()])      
 
-         start_values = {parLocationMod[k]:parDictMod[k] for k in parDictMod.keys()}
+         start_values = {parLocationMod[k]:parValueMod[k] for k in parValueMod.keys()}
   
          # Simulate
          sim_res = simulate_fmu(
@@ -1280,7 +1282,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
             record_events = True,
             start_values = start_values,
             fmi_call_logger = None,
-            output = list(set(extract_variables(diagrams) + list(stateDict.keys()) + key_variables))
+            output = list(set(extract_variables(diagrams) + list(stateValue.keys()) + key_variables))
          )
       
          simulationDone = True
@@ -1294,8 +1296,8 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
       linetype = next(linecycler)    
       for command in diagrams: eval(command)
    
-      # Store final state values in stateDict:        
-      for key in stateDict.keys(): stateDict[key] = model_get(key)  
+      # Store final state values in stateValue:        
+      for key in stateValue.keys(): stateValue[key] = model_get(key)  
          
       # Store time from where simulation will start next time
       prevFinalTime = sim_res['time'][-1]
@@ -1340,7 +1342,7 @@ def describe_MSL(flag_vendor=flag_vendor):
    print('MSL:', MSL_usage)
  
 # Describe parameters and variables in the Modelica code
-def describe_general(name, decimals):
+def describe_general(name, decimals, parLocation=parLocation):
   
    if name == 'time':
       description = 'Time'
@@ -1380,12 +1382,12 @@ def describe_general(name, decimals):
 # Plot process diagram
 def process_diagram(fmu_model=fmu_model, fmu_process_diagram=fmu_process_diagram):   
    try:
-       processDiagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
+       process_diagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
    except KeyError:
        print('No processDiagram.png file in the FMU, but try the file on disk.')
-       processDiagram = fmu_process_diagram
+       process_diagram = fmu_process_diagram
    try:
-       plt.imshow(img.imread(processDiagram))
+       plt.imshow(img.imread(process_diagram))
        plt.axis('off')
        plt.show()
    except FileNotFoundError:
