@@ -67,7 +67,7 @@
 # 2024-11-07 - Update for BPL 2.3.0
 # 2025-06-13 - Test MSL 4.1.0 with OpenModelica genreated FMU
 # 2025-07-25 - Update for BPL 2.3.1
-# 2025-11-12 - Update FMU-explore 1.0.2
+# 2025-11-13 - Update FMU-explore 1.0.1b
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -98,7 +98,6 @@ if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 #------------------------------------------------------------------------------------------------------------------
 
 # Provde the right FMU and load for different platforms in user dialogue:
-global model_description
 if platform.system() == 'Windows':
    print('Windows - run FMU pre-compiled JModelica 2.14')
    fmu_model ='BPL_IEC_Column_system_windows_jm_cs.fmu'       
@@ -161,7 +160,7 @@ component_list_minimum = []
 fmu_process_diagram ='BPL_IEC_process_diagram_om.png'
 
 #------------------------------------------------------------------------------------------------------------------
-#  Specific application constructs: stateValue, parValue, diagrams, newplot(), describe()
+#  Specific application constructs: stateValue, parValue, parLocation, parCheck,parValue diagrams, newplot(), describe()
 #------------------------------------------------------------------------------------------------------------------
    
 # Create stateValue that later will be used to store final state and used for initialization in 'cont':
@@ -170,7 +169,7 @@ stateValue = {variable.derivative.name:None for variable in model_description.mo
                                             if variable.derivative is not None}
 stateValue.update(timeDiscreteStates) 
 
-global stateValueInitial; stateValueInitial = {}
+stateValueInitial = {}
 for key in stateValue.keys():
     if not key[-1] == ']':
          if key[-3:] == 'I.y':
@@ -263,7 +262,7 @@ parLocation['start_uv'] = 'control_pooling.start_uv_pooling'
 parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
 
 # Extra only for describe()
-global key_variables; key_variables = []
+key_variables = []
 parLocation['V'] = 'column.V'; key_variables.append(parLocation['V'])
 #parLocation['scale_volume'] = 'scale_volume'; key_variables.append(parLocation['scale_volume'])
 parLocation['VFR'] = 'conversion.F'; key_variables.append(parLocation['VFR'])
@@ -1077,12 +1076,12 @@ def describe(name, decimals=3):
          
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore for FMPy version 1.0.2'
+FMU_explore = 'FMU-explore for FMPy version 1.0.1h'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
-def par(*x, parValue=parValue, parCheck=parCheck, parLocation=parLocation, **x_kwarg):
-   """ Set parameter values if available in the predefined dictionaryt parValue. """
+def par(*x, parValue=parValue, **x_kwarg):
+   """ Set parameter values if available in the predefined dictionary parValue. """
    x_kwarg.update(*x)
    x_temp = {}
    for key in x_kwarg.keys():
@@ -1098,7 +1097,7 @@ def par(*x, parValue=parValue, parCheck=parCheck, parLocation=parLocation, **x_k
       for index, item in enumerate(parErrors): print(item)
 
 # Define function init() for initial values update
-def init(*x, parValue=parValue,  **x_kwarg):
+def init(*x, parValue=parValue, **x_kwarg):
    """ Set initial values and the name should contain string '_start' to be accepted.
        The function can handle general parameter string location names if entered as a dictionary. """
    x_kwarg.update(*x)
@@ -1109,6 +1108,28 @@ def init(*x, parValue=parValue,  **x_kwarg):
       else:
          print('Error:', key, '- seems not an initial value, use par() instead - check the spelling')
    parValue.update(x_init)
+   
+# Define how to read dictionary for parameter values
+def readParValue(file, sheet, parValue=parValue):
+   """ Read parameter short names and values from an Excel-file from defined sheet. For use in the notebook!
+       Return a dictionary."""
+   parValue_local = {} 
+   table = pd.ExcelFile(file).parse(sheet)
+   for k in list(range(len(table))):
+      parValue_local[table['Par'][k]] = table['Value'][k]
+   parValue.update(parValue_local)
+
+# Define how to read dictionary for parameter location
+def readParLocation(file, parLocation=parLocation):
+   """ Read parameter short and long names from an Excel-file sheet by sheet. For use in the notebook!
+       Return a dictionary."""
+   sheets = ['initial_values','feed_AB', 'feed_G', 'culture', 'broth_decay']
+   parLocation_local = {}
+   for sheet in sheets:
+      table = pd.ExcelFile(file).parse(sheet)
+      for k in list(range(len(table))):
+         parLocation_local[table['Par'][k]] = table['Location'][k]
+   parLocation.update(parLocation_local)
 
 # Define fuctions similar to pyfmi model.get(), model.get_variable_descirption(), model.get_variable_unit()
 def model_get(parLoc, model_description=model_description):
@@ -1117,17 +1138,18 @@ def model_get(parLoc, model_description=model_description):
    for k in range(len(par_var)):
       if par_var[k].name == parLoc:
          try:
-            if par_var[k].name in start_values.keys():
-                  value = start_values[par_var[k].name]
-            elif par_var[k].variability in ['constant', 'fixed']: 
-               if par_var[k].type in ['Integer', 'Real']: 
-                  value = float(par_var[k].start)      
-               if par_var[k].type in ['String']: 
-                  value = par_var[k].start                        
+            if (par_var[k].causality in ['local']) & (par_var[k].variability in ['constant']):
+               value = float(par_var[k].start)                 
+            elif par_var[k].causality in ['parameter']: 
+               value = float(par_var[k].start)  
+            elif par_var[k].causality in ['calculatedParameter']: 
+               value = float(sim_res[par_var[k].name][0]) 
+            elif par_var[k].name in start_values.keys():
+               value = start_values[par_var[k].name]   
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
-                  value = timeSeries[-1]
+                  value = float(timeSeries[-1])
                except (AttributeError, ValueError):
                   value = None
                   print('Variable not logged')
@@ -1137,7 +1159,7 @@ def model_get(parLoc, model_description=model_description):
             print('Error: Information available after first simution')
             value = None          
    return value
-   
+
 def model_get_variable_description(parLoc, model_description=model_description):
    """ Function corresponds to pyfmi model.get_variable_description() but returns just a value and not a list"""
    par_var = model_description.modelVariables
@@ -1209,10 +1231,10 @@ def show(diagrams=diagrams):
    for command in diagrams: eval(command)
 
 # Define simulation
-def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagrams=diagrams, \
-         timeDiscreteStates=timeDiscreteStates, stateValue=stateValue, \
-         stateValueInitial=stateValueInitial, stateValueInitialLoc=stateValueInitialLoc, \
-         parValue=parValue, parLocation=parLocation, fmu_model=fmu_model):  
+def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagrams=diagrams, fmu_model=fmu_model, \
+         stateValue=stateValue, stateValueInitial=stateValueInitial, stateValueInitialLoc=stateValueInitialLoc, \
+         timeDiscreteStates=timeDiscreteStates, \
+         key_variables=key_variables, parValue=parValue, parLocation=parLocation):
    """Model loaded and given intial values and parameter before, and plot window also setup before."""   
    
    # Global variables
@@ -1382,12 +1404,12 @@ def describe_general(name, decimals, parLocation=parLocation):
 # Plot process diagram
 def process_diagram(fmu_model=fmu_model, fmu_process_diagram=fmu_process_diagram):   
    try:
-       process_diagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
+       processDiagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
    except KeyError:
        print('No processDiagram.png file in the FMU, but try the file on disk.')
-       process_diagram = fmu_process_diagram
+       processDiagram = fmu_process_diagram
    try:
-       plt.imshow(img.imread(process_diagram))
+       plt.imshow(img.imread(processDiagram))
        plt.axis('off')
        plt.show()
    except FileNotFoundError:
