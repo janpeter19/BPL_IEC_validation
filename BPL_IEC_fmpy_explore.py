@@ -67,7 +67,8 @@
 # 2024-11-07 - Update for BPL 2.3.0
 # 2025-06-13 - Test MSL 4.1.0 with OpenModelica genreated FMU
 # 2025-07-25 - Update for BPL 2.3.1
-# 2025-11-13 - Update FMU-explore 1.0.1b
+# 2025-11-13 - Update FMU-explore 1.0.1h - parDict > parValue, stateDict >stateValue, key_variables > keyVariables
+# 2025-11-13 - Remobed global declaration outside the funtions
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -147,8 +148,8 @@ else:
    print('There is no FMU for this platform')
 
 # Simulation time
-global simulationTime; simulationTime = 100.0
-global prevFinalTime; prevFinalTime = 0
+simulationTime = 100.0
+prevFinalTime = 0
 
 # Dictionary of time discrete states
 timeDiscreteStates = {} 
@@ -262,22 +263,22 @@ parLocation['start_uv'] = 'control_pooling.start_uv_pooling'
 parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
 
 # Extra only for describe()
-key_variables = []
-parLocation['V'] = 'column.V'; key_variables.append(parLocation['V'])
-#parLocation['scale_volume'] = 'scale_volume'; key_variables.append(parLocation['scale_volume'])
-parLocation['VFR'] = 'conversion.F'; key_variables.append(parLocation['VFR'])
-parLocation['area'] = 'column.area'; key_variables.append(parLocation['area'])
-parLocation['V_m'] = 'column.V_m'; key_variables.append(parLocation['V_m'])
-parLocation['column.n'] = 'column.n'; key_variables.append(parLocation['column.n'])
+keyVariables = []
+parLocation['V'] = 'column.V'; keyVariables.append(parLocation['V'])
+#parLocation['scale_volume'] = 'scale_volume'; keyVariables.append(parLocation['scale_volume'])
+parLocation['VFR'] = 'conversion.F'; keyVariables.append(parLocation['VFR'])
+parLocation['area'] = 'column.area'; keyVariables.append(parLocation['area'])
+parLocation['V_m'] = 'column.V_m'; keyVariables.append(parLocation['V_m'])
+parLocation['column.n'] = 'column.n'; keyVariables.append(parLocation['column.n'])
 
 parLocation['column.column_section[1].V_m'] = 'column.column_section[1].V_m'; 
-key_variables.append(parLocation['column.column_section[1].V_m'])
+keyVariables.append(parLocation['column.column_section[1].V_m'])
 
 parLocation['tank_mixing.outlet.c[1]'] ='tank_mixing.outlet.c[1]'; 
-key_variables.append(parLocation['tank_mixing.outlet.c[1]'])
+keyVariables.append(parLocation['tank_mixing.outlet.c[1]'])
 
 #parLocation['control_desorption_buffer.scaling'] ='control_desorption_buffer.scaling'; 
-#key_variables.append(parLocation['control_desorption_buffer.scaling'])
+#keyVariables.append(parLocation['control_desorption_buffer.scaling'])
 
 
 # Parameter value check - especially for hysteresis to avoid runtime error
@@ -289,7 +290,6 @@ parCheck.append("parValue['start_uv'] > parValue['stop_uv']")
 
 
 # Create list of diagrams to be plotted by simu()
-global diagrams
 diagrams = []
 
 # Define standard plots
@@ -1234,7 +1234,7 @@ def show(diagrams=diagrams):
 def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagrams=diagrams, fmu_model=fmu_model, \
          stateValue=stateValue, stateValueInitial=stateValueInitial, stateValueInitialLoc=stateValueInitialLoc, \
          timeDiscreteStates=timeDiscreteStates, \
-         key_variables=key_variables, parValue=parValue, parLocation=parLocation):
+         keyVariables=keyVariables, parValue=parValue, parLocation=parLocation):
    """Model loaded and given intial values and parameter before, and plot window also setup before."""   
    
    # Global variables
@@ -1268,7 +1268,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
          record_events = True,
          start_values = start_values,
          fmi_call_logger = None,
-         output = list(set(extract_variables(diagrams) + list(stateValue.keys()) + key_variables))
+         output = list(set(extract_variables(diagrams) + list(stateValue.keys()) + keyVariables))
       )
       
       simulationDone = True
@@ -1304,7 +1304,7 @@ def simu(simulationTime=simulationTime, mode='Initial', options=opts_std, diagra
             record_events = True,
             start_values = start_values,
             fmi_call_logger = None,
-            output = list(set(extract_variables(diagrams) + list(stateValue.keys()) + key_variables))
+            output = list(set(extract_variables(diagrams) + list(stateValue.keys()) + keyVariables))
          )
       
          simulationDone = True
