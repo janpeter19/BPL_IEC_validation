@@ -68,7 +68,8 @@
 # 2025-06-13 - Test MSL 4.1.0 with OpenModelica genreated FMU
 # 2025-07-25 - Update for BPL 2.3.1
 # 2025-11-13 - Update FMU-explore 1.0.1h - parDict > parValue, stateDict >stateValue, key_variables > keyVariables
-# 2025-11-13 - Remobed global declaration outside the funtions
+# 2025-11-13 - Remobed global declaration outside the functions
+# 2025-11-14 - FMU-explore 1.0.2 corrected
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -1076,7 +1077,7 @@ def describe(name, decimals=3):
          
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore for FMPy version 1.0.1h'
+FMU_explore = 'FMU-explore for FMPy version 1.0.2'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
@@ -1163,14 +1164,12 @@ def model_get(parLoc, model_description=model_description):
 def model_get_variable_description(parLoc, model_description=model_description):
    """ Function corresponds to pyfmi model.get_variable_description() but returns just a value and not a list"""
    par_var = model_description.modelVariables
-#   value = [x[1] for x in [(par_var[k].name, par_var[k].description) for k in range(len(par_var))] if parLoc in x[0]]
    value = [x.description for x in par_var if parLoc in x.name]   
    return value[0]
    
 def model_get_variable_unit(parLoc, model_description=model_description):
    """ Function corresponds to pyfmi model.get_variable_unit() but returns just a value and not a list"""
    par_var = model_description.modelVariables
-#   value = [x[1] for x in [(par_var[k].name, par_var[k].unit) for k in range(len(par_var))] if parLoc in x[0]]
    value = [x.unit for x in par_var if parLoc in x.name]
    return value[0]
       
