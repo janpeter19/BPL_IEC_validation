@@ -1,7 +1,8 @@
-# setup applicateion data BPL_IEC
+# setup applicateion data BPL_IEC_fmpy
 # Author: Jan Peter Axelsson
 #------------------------------------------------------------------------------------------------------------------
-# 2026-08-28 - Created
+# 2026-09-09 - Created
+# 2026-09-09 - Drop global prevFinalTime and let it be just interal to fmu_explore_fmpy
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -14,7 +15,8 @@ import platform
 import locale
 import numpy as np 
 import matplotlib.pyplot as plt 
-from pyfmi import load_fmu
+from fmpy import simulate_fmu
+from fmpy import read_model_description
 
 # Set the environment - for Linux a JSON-file in the FMU is read
 if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
@@ -27,46 +29,44 @@ if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 if platform.system() == 'Windows':
    print('Windows - run FMU pre-compiled JModelica 2.14')
    fmu_model ='BPL_IEC_Column_system_windows_jm_cs.fmu'       
-   model = load_fmu(fmu_model, log_level=0)
+   model_description = read_model_description(fmu_model)  
    flag_vendor = 'JM'
    flag_type = 'CS'
-elif platform.system() == 'Linux':  
+elif platform.system() == 'Linux':
    flag_vendor = 'OM'
    flag_type = 'ME'
    if flag_vendor in ['','JM','jm']:    
       print('Linux - run FMU pre-compiled JModelica 2.4')
       fmu_model ='BPL_IEC_Column_system_linux_jm_cs.fmu'      
-      model = load_fmu(fmu_model, log_level=0)
+      model_description = read_model_description(fmu_model) 
    if flag_vendor in ['OM','om']:
       print('Linux - run FMU pre-compiled OpenModelica') 
       if flag_type in ['CS','cs']:         
          fmu_model ='BPL_IEC_Column_system_linux_om_cs.fmu'    
-         model = load_fmu(fmu_model, log_level=0)
+         model_description = read_model_description(fmu_model) 
       if flag_type in ['ME','me']:         
          fmu_model ='BPL_IEC_Column_system_linux_om_me.fmu' 
-         model = load_fmu(fmu_model, log_level=0)
+         model_description = read_model_description(fmu_model) 
    else:    
       print('There is no FMU for this platform')
 
 # Provide various opts-profiles
 if flag_type in ['CS', 'cs']:
-   opts_std = model.simulate_options()
-   opts_std['silent_mode'] = True
-   opts_std['ncp'] = 500 
-   opts_std['result_handling'] = 'binary'     
+   opts_std = {'NCP': 500}
 elif flag_type in ['ME', 'me']:
-   opts_std = model.simulate_options()
-   opts_std["CVode_options"]["verbosity"] = 50 
-   opts_std['ncp'] = 500 
-   opts_std['result_handling'] = 'binary'  
+   opts_std = {'NCP': 500}
 else:    
    print('There is no FMU for this platform')
-  
+
 # Provide various MSL and BPL versions
 if flag_vendor in ['JM', 'jm']:
-   MSL_usage = model.get('MSL.usage')[0]
-   MSL_version = model.get('MSL.version')[0]
-   BPL_version = model.get('BPL.version')[0]
+   constants = [v for v in model_description.modelVariables if v.causality == 'local'] 
+   MSL_usage = [x[1] for x in [(constants[k].name, constants[k].start) \
+                     for k in range(len(constants))] if 'MSL.usage' in x[0]][0]   
+   MSL_version = [x[1] for x in [(constants[k].name, constants[k].start) \
+                       for k in range(len(constants))] if 'MSL.version' in x[0]][0]
+   BPL_version = [x[1] for x in [(constants[k].name, constants[k].start) \
+                       for k in range(len(constants))] if 'BPL.version' in x[0]][0] 
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '4.1.0 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '4.1.0'
@@ -75,20 +75,41 @@ else:
    print('There is no FMU for this platform')
    
 #------------------------------------------------------------------------------------------------------------------
-#  Specific application constructs: stateValue, parValue, parLocation, parCheck, diagrams, ax, lines
-#------------------------------------------------------------------------------------------------------------------
 
 # Simulation time
 simulationTime = 100.0
-prevFinalTime = 0
 
 # Dictionary of time discrete states
 timeDiscreteStates = {} 
 
 # Create stateValue that later will be used to store final state and used for initialization in 'cont':
-stateValue = {}
-stateValue = model.get_states_list()
-stateValue.update(timeDiscreteStates)
+stateValue =  {}
+stateValue = {variable.derivative.name:None for variable in model_description.modelVariables \
+                                            if variable.derivative is not None}
+stateValue.update(timeDiscreteStates) 
+
+stateValueInitial = {}
+for key in stateValue.keys():
+    if not key[-1] == ']':
+         if key[-3:] == 'I.y':
+            stateValueInitial[key] = key[:-10]+'I_start'
+         elif key[-3:] == 'D.x':
+            stateValueInitial[key] = key[:-10]+'D_start'
+         else:
+            stateValueInitial[key] = key+'_start'
+    elif key[-3] == '[':
+        stateValueInitial[key] = key[:-3]+'_start'+key[-3:]
+    elif key[-4] == '[':
+        stateValueInitial[key] = key[:-4]+'_start'+key[-4:]
+    elif key[-5] == '[':
+        stateValueInitial[key] = key[:-5]+'_start'+key[-5:] 
+    else:
+        print('The state vector has more than 1000 states')
+        break
+
+stateValueInitialLoc = {}
+for value in stateValueInitial.values():
+    stateValueInitialLoc[value] = value
 
 # Define a minimal compoent list of the model as a starting point for describe('parts')
 component_list_minimum = []
@@ -96,6 +117,10 @@ component_list_minimum = []
 # Provide process diagram on disk
 fmu_process_diagram ='BPL_IEC_process_diagram_om.png'
 
+#------------------------------------------------------------------------------------------------------------------
+#  Specific application constructs: stateValue, parValue, parLocation, parCheck,parValue diagrams, ax
+#------------------------------------------------------------------------------------------------------------------
+   
 # Create dictionaries parValue and parLocation
 parValue = {}
 parValue['diameter'] = 7.136
@@ -165,19 +190,32 @@ parLocation['stop_pooling'] = 'control_pooling.stop'
 parLocation['start_uv'] = 'control_pooling.start_uv_pooling'
 parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
 
-# Extra and also duplicate names only for describe() 
-parLocation['F'] = 'conversion.F'    # added for BPL_GUI
-parLocation['VFR'] = 'conversion.F'
-parLocation['area'] = 'column.area'
-parLocation['V'] = 'column.V'
-parLocation['V_m'] = 'column.V_m'
+# Extra only for describe()
+keyVariables = []
+parLocation['V'] = 'column.V'; keyVariables.append(parLocation['V'])
+#parLocation['scale_volume'] = 'scale_volume'; keyVariables.append(parLocation['scale_volume'])
+parLocation['VFR'] = 'conversion.F'; keyVariables.append(parLocation['VFR'])
+parLocation['area'] = 'column.area'; keyVariables.append(parLocation['area'])
+parLocation['V_m'] = 'column.V_m'; keyVariables.append(parLocation['V_m'])
+parLocation['column.n'] = 'column.n'; keyVariables.append(parLocation['column.n'])
+
+parLocation['column.column_section[1].V_m'] = 'column.column_section[1].V_m'; 
+keyVariables.append(parLocation['column.column_section[1].V_m'])
+
+parLocation['tank_mixing.outlet.c[1]'] ='tank_mixing.outlet.c[1]'; 
+keyVariables.append(parLocation['tank_mixing.outlet.c[1]'])
+
+#parLocation['control_desorption_buffer.scaling'] ='control_desorption_buffer.scaling'; 
+#keyVariables.append(parLocation['control_desorption_buffer.scaling'])
+
 
 # Parameter value check - especially for hysteresis to avoid runtime error
 parCheck = []
-parCheck.append("parValue['start_adsorption'] <= parValue['stop_adsorption']")
-parCheck.append("parValue['start_desorption'] <= parValue['stationary_desorption']")
-parCheck.append("parValue['stationary_desorption'] <= parValue['stop_desorption']")
+parCheck.append("parValue['start_adsorption'] < parValue['stop_adsorption']")
+parCheck.append("parValue['start_desorption'] < parValue['stationary_desorption']")
+parCheck.append("parValue['stationary_desorption'] < parValue['stop_desorption']")
 parCheck.append("parValue['start_uv'] > parValue['stop_uv']")
+
 
 # Create list of diagrams to be plotted by simu()
 diagrams = []
