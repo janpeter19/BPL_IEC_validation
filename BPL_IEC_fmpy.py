@@ -1,184 +1,204 @@
 # setup applicateion data BPL_IEC_fmpy
 # Author: Jan Peter Axelsson
-#------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
 # 2026-09-09 - Created
 # 2026-09-09 - Drop global prevFinalTime and let it be just interal to fmu_explore_fmpy
 # 2026-09-12 - Move calculations around stateValue etc to the initialization of fmy:_explore_fmpy ver 1.1.8
-#------------------------------------------------------------------------------------------------------------------
+# 2026-09-25 - Decrease the framework to what is necessary and move matlotlib and numpy to the other setup-file
+# 2026-09-25 - Change indentaiton from 3 spaces to 4 using black
+# ------------------------------------------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 #  Framework
-#------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 
 # Setup framework
-import sys
 import platform
 import locale
-import numpy as np 
-import matplotlib.pyplot as plt 
 from fmpy import simulate_fmu
 from fmpy import read_model_description
 
 # Set the environment - for Linux a JSON-file in the FMU is read
-if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+if platform.system() == "Linux":
+    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
-#------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 #  Setup application FMU
-#------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 
 # Provde the right FMU and load for different platforms in user dialogue:
-if platform.system() == 'Windows':
-   print('Windows - run FMU pre-compiled JModelica 2.14')
-   fmu_model ='BPL_IEC_Column_system_windows_jm_cs.fmu'       
-   model_description = read_model_description(fmu_model)  
-   flag_vendor = 'JM'
-   flag_type = 'CS'
-elif platform.system() == 'Linux':
-   flag_vendor = 'OM'
-   flag_type = 'ME'
-   if flag_vendor in ['','JM','jm']:    
-      print('Linux - run FMU pre-compiled JModelica 2.4')
-      fmu_model ='BPL_IEC_Column_system_linux_jm_cs.fmu'      
-      model_description = read_model_description(fmu_model) 
-   if flag_vendor in ['OM','om']:
-      print('Linux - run FMU pre-compiled OpenModelica') 
-      if flag_type in ['CS','cs']:         
-         fmu_model ='BPL_IEC_Column_system_linux_om_cs.fmu'    
-         model_description = read_model_description(fmu_model) 
-      if flag_type in ['ME','me']:         
-         fmu_model ='BPL_IEC_Column_system_linux_om_me.fmu' 
-         model_description = read_model_description(fmu_model) 
-   else:    
-      print('There is no FMU for this platform')
+if platform.system() == "Windows":
+    print("Windows - run FMU pre-compiled JModelica 2.14")
+    fmu_model = "BPL_IEC_Column_system_windows_jm_cs.fmu"
+    model_description = read_model_description(fmu_model)
+    flag_vendor = "JM"
+    flag_type = "CS"
+elif platform.system() == "Linux":
+    flag_vendor = "OM"
+    flag_type = "ME"
+    if flag_vendor in ["", "JM", "jm"]:
+        print("Linux - run FMU pre-compiled JModelica 2.4")
+        fmu_model = "BPL_IEC_Column_system_linux_jm_cs.fmu"
+        model_description = read_model_description(fmu_model)
+    if flag_vendor in ["OM", "om"]:
+        print("Linux - run FMU pre-compiled OpenModelica")
+        if flag_type in ["CS", "cs"]:
+            fmu_model = "BPL_IEC_Column_system_linux_om_cs.fmu"
+            model_description = read_model_description(fmu_model)
+        if flag_type in ["ME", "me"]:
+            fmu_model = "BPL_IEC_Column_system_linux_om_me.fmu"
+            model_description = read_model_description(fmu_model)
+    else:
+        print("There is no FMU for this platform")
 
 # Provide various opts-profiles
-if flag_type in ['CS', 'cs']:
-   opts_std = {'NCP': 500}
-elif flag_type in ['ME', 'me']:
-   opts_std = {'NCP': 500}
-else:    
-   print('There is no FMU for this platform')
+if flag_type in ["CS", "cs"]:
+    opts_std = {"NCP": 500}
+elif flag_type in ["ME", "me"]:
+    opts_std = {"NCP": 500}
+else:
+    print("There is no FMU for this platform")
 
 # Provide various MSL and BPL versions
-if flag_vendor in ['JM', 'jm']:
-   constants = [v for v in model_description.modelVariables if v.causality == 'local'] 
-   MSL_usage = [x[1] for x in [(constants[k].name, constants[k].start) \
-                     for k in range(len(constants))] if 'MSL.usage' in x[0]][0]   
-   MSL_version = [x[1] for x in [(constants[k].name, constants[k].start) \
-                       for k in range(len(constants))] if 'MSL.version' in x[0]][0]
-   BPL_version = [x[1] for x in [(constants[k].name, constants[k].start) \
-                       for k in range(len(constants))] if 'BPL.version' in x[0]][0] 
-elif flag_vendor in ['OM', 'om']:
-   MSL_usage = '4.1.0 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
-   MSL_version = '4.1.0'
-   BPL_version = 'Bioprocess Library version 2.3.2' 
-else:    
-   print('There is no FMU for this platform')
-   
-#------------------------------------------------------------------------------------------------------------------
+if flag_vendor in ["JM", "jm"]:
+    constants = [v for v in model_description.modelVariables if v.causality == "local"]
+    MSL_usage = [
+        x[1]
+        for x in [
+            (constants[k].name, constants[k].start) for k in range(len(constants))
+        ]
+        if "MSL.usage" in x[0]
+    ][0]
+    MSL_version = [
+        x[1]
+        for x in [
+            (constants[k].name, constants[k].start) for k in range(len(constants))
+        ]
+        if "MSL.version" in x[0]
+    ][0]
+    BPL_version = [
+        x[1]
+        for x in [
+            (constants[k].name, constants[k].start) for k in range(len(constants))
+        ]
+        if "BPL.version" in x[0]
+    ][0]
+elif flag_vendor in ["OM", "om"]:
+    MSL_usage = "4.1.0 - used components: RealInput, RealOutput, CombiTimeTable, Types"
+    MSL_version = "4.1.0"
+    BPL_version = "Bioprocess Library version 2.3.2"
+else:
+    print("There is no FMU for this platform")
+
+# -------------------------------------------------------------------------------------------------
 
 # Simulation time
 simulationTime = 100.0
 
 # Dictionary of time discrete states
-timeDiscreteStates = {} 
+timeDiscreteStates = {}
 
 # Define a minimal compoent list of the model as a starting point for describe('parts')
 component_list_minimum = []
 
 # Provide process diagram on disk
-fmu_process_diagram ='BPL_IEC_process_diagram_om.png'
+fmu_process_diagram = "BPL_IEC_process_diagram_om.png"
 
-#------------------------------------------------------------------------------------------------------------------
-#  Specific application constructs: stateValue, parValue, parLocation, parCheck,parValue diagrams, ax
-#------------------------------------------------------------------------------------------------------------------
-   
+# -------------------------------------------------------------------------------------------------
+#  Specific for application: parValue, parLocation, parCheck, keyVariables, diagrams, ax, lines
+# -------------------------------------------------------------------------------------------------
+
 # Create dictionaries parValue and parLocation
 parValue = {}
-parValue['diameter'] = 7.136
-parValue['height'] = 20.0
-parValue['x_m'] = 0.30
-parValue['k1'] = 0.3
-parValue['k2'] = 0.05
-parValue['k3'] = 0.05
-parValue['k4'] = 0.3
-parValue['Q_av'] = 3.0
+parValue["diameter"] = 7.136
+parValue["height"] = 20.0
+parValue["x_m"] = 0.30
+parValue["k1"] = 0.3
+parValue["k2"] = 0.05
+parValue["k3"] = 0.05
+parValue["k4"] = 0.3
+parValue["Q_av"] = 3.0
 
-parValue['E_start'] = 0.0
+parValue["E_start"] = 0.0
 
-parValue['P_in'] = 0.3
-parValue['A_in'] = 0.3
-parValue['E_in'] = 0
-parValue['E_in_desorption_buffer'] = 0.3
+parValue["P_in"] = 0.3
+parValue["A_in"] = 0.3
+parValue["E_in"] = 0
+parValue["E_in_desorption_buffer"] = 0.3
 
-parValue['LFR'] = 0.67
+parValue["LFR"] = 0.67
 
-#parValue['scale_volume'] = True
-#parValue['gradient'] = True
-parValue['start_adsorption'] = 0
-parValue['stop_adsorption'] = 67
-parValue['start_desorption'] = 200
-parValue['x_start_desorption'] = 0.2
-parValue['stationary_desorption'] = 500
-parValue['stop_desorption'] = 600
-parValue['start_pooling'] = 308
-parValue['stop_pooling'] = 600
+# parValue['scale_volume'] = True
+# parValue['gradient'] = True
+parValue["start_adsorption"] = 0
+parValue["stop_adsorption"] = 67
+parValue["start_desorption"] = 200
+parValue["x_start_desorption"] = 0.2
+parValue["stationary_desorption"] = 500
+parValue["stop_desorption"] = 600
+parValue["start_pooling"] = 308
+parValue["stop_pooling"] = 600
 
-#parValue['uv_start_trend'] = 0
-parValue['start_uv'] = -1
-parValue['stop_uv'] = -2
+# parValue['uv_start_trend'] = 0
+parValue["start_uv"] = -1
+parValue["stop_uv"] = -2
 
 parLocation = {}
-parLocation['diameter'] = 'column.diameter'
-parLocation['height'] = 'column.height'
-parLocation['x_m'] = 'column.x_m'
-parLocation['k1'] = 'column.k1'
-parLocation['k2'] = 'column.k2'
-parLocation['k3'] = 'column.k3'
-parLocation['k4'] = 'column.k4'
-parLocation['Q_av'] = 'column.Q_av'
+parLocation["diameter"] = "column.diameter"
+parLocation["height"] = "column.height"
+parLocation["x_m"] = "column.x_m"
+parLocation["k1"] = "column.k1"
+parLocation["k2"] = "column.k2"
+parLocation["k3"] = "column.k3"
+parLocation["k4"] = "column.k4"
+parLocation["Q_av"] = "column.Q_av"
 
-parLocation['E_start'] = 'column.column_section[1].c_start[3]'
+parLocation["E_start"] = "column.column_section[1].c_start[3]"
 
-parLocation['P_in'] = 'tank_sample.c_in[1]'
-parLocation['A_in'] = 'tank_sample.c_in[2]'
-parLocation['E_in'] = 'tank_sample.c_in[3]'
-parLocation['E_in_desorption_buffer'] = 'tank_buffer2.c_in[3]'
+parLocation["P_in"] = "tank_sample.c_in[1]"
+parLocation["A_in"] = "tank_sample.c_in[2]"
+parLocation["E_in"] = "tank_sample.c_in[3]"
+parLocation["E_in_desorption_buffer"] = "tank_buffer2.c_in[3]"
 
-parLocation['LFR'] = 'linear_flow_rate.value'
+parLocation["LFR"] = "linear_flow_rate.value"
 
-#parLocation['scale_volume'] = 'scale_volume'
-#parLocation['gradient'] = 'control_desorption_buffer.gradient'
-parLocation['start_adsorption'] = 'control_sample.start'
-parLocation['stop_adsorption'] = 'control_sample.stop'
-parLocation['start_desorption'] = 'control_desorption_buffer.start'
-parLocation['x_start_desorption'] = 'control_desorption_buffer.x_start'
-parLocation['stationary_desorption'] = 'control_desorption_buffer.stationary'
-parLocation['stop_desorption'] = 'control_desorption_buffer.stop'
-parLocation['start_pooling'] = 'control_pooling.start'
-parLocation['stop_pooling'] = 'control_pooling.stop'
+# parLocation['scale_volume'] = 'scale_volume'
+# parLocation['gradient'] = 'control_desorption_buffer.gradient'
+parLocation["start_adsorption"] = "control_sample.start"
+parLocation["stop_adsorption"] = "control_sample.stop"
+parLocation["start_desorption"] = "control_desorption_buffer.start"
+parLocation["x_start_desorption"] = "control_desorption_buffer.x_start"
+parLocation["stationary_desorption"] = "control_desorption_buffer.stationary"
+parLocation["stop_desorption"] = "control_desorption_buffer.stop"
+parLocation["start_pooling"] = "control_pooling.start"
+parLocation["stop_pooling"] = "control_pooling.stop"
 
-#parLocation['uv_start_trend'] = 'control_pooling2.uv_start_trend'
-parLocation['start_uv'] = 'control_pooling.start_uv_pooling'
-parLocation['stop_uv'] = 'control_pooling.stop_uv_pooling'
+# parLocation['uv_start_trend'] = 'control_pooling2.uv_start_trend'
+parLocation["start_uv"] = "control_pooling.start_uv_pooling"
+parLocation["stop_uv"] = "control_pooling.stop_uv_pooling"
 
 # Extra only for describe()
 keyVariables = []
-parLocation['V'] = 'column.V'; keyVariables.append(parLocation['V'])
-#parLocation['scale_volume'] = 'scale_volume'; keyVariables.append(parLocation['scale_volume'])
-parLocation['VFR'] = 'conversion.F'; keyVariables.append(parLocation['VFR'])
-parLocation['area'] = 'column.area'; keyVariables.append(parLocation['area'])
-parLocation['V_m'] = 'column.V_m'; keyVariables.append(parLocation['V_m'])
-parLocation['column.n'] = 'column.n'; keyVariables.append(parLocation['column.n'])
+parLocation["V"] = "column.V"
+keyVariables.append(parLocation["V"])
+# parLocation['scale_volume'] = 'scale_volume'; keyVariables.append(parLocation['scale_volume'])
+parLocation["VFR"] = "conversion.F"
+keyVariables.append(parLocation["VFR"])
+parLocation["area"] = "column.area"
+keyVariables.append(parLocation["area"])
+parLocation["V_m"] = "column.V_m"
+keyVariables.append(parLocation["V_m"])
+parLocation["column.n"] = "column.n"
+keyVariables.append(parLocation["column.n"])
 
-parLocation['column.column_section[1].V_m'] = 'column.column_section[1].V_m'; 
-keyVariables.append(parLocation['column.column_section[1].V_m'])
+parLocation["column.column_section[1].V_m"] = "column.column_section[1].V_m"
+keyVariables.append(parLocation["column.column_section[1].V_m"])
 
-parLocation['tank_mixing.outlet.c[1]'] ='tank_mixing.outlet.c[1]'; 
-keyVariables.append(parLocation['tank_mixing.outlet.c[1]'])
+parLocation["tank_mixing.outlet.c[1]"] = "tank_mixing.outlet.c[1]"
+keyVariables.append(parLocation["tank_mixing.outlet.c[1]"])
 
-#parLocation['control_desorption_buffer.scaling'] ='control_desorption_buffer.scaling'; 
-#keyVariables.append(parLocation['control_desorption_buffer.scaling'])
+# parLocation['control_desorption_buffer.scaling'] ='control_desorption_buffer.scaling';
+# keyVariables.append(parLocation['control_desorption_buffer.scaling'])
 
 
 # Parameter value check - especially for hysteresis to avoid runtime error
@@ -196,15 +216,17 @@ diagrams = []
 ax = []
 
 # Create list of pens for the diagrams
-lines = ['-','--',':','-.']
+lines = ["-", "--", ":", "-."]
 
-#------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 #  Specific application constructs: external function
-#------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 
-def profile(t_n, id, sim_res):           # <---------
+import numpy as np
+
+def profile(t_n, id, sim_res):
     data = np.zeros(9)
-    data[0] = sim_res['time'][t_n]
-    for j in list(range(1,9)):
-        data[j] = sim_res['column.column_section[' + str(j) + '].c[' + str(id) + ']'][t_n]
+    data[0] = sim_res["time"][t_n]
+    for j in list(range(1, 9)):
+        data[j] = sim_res["column.column_section[" + str(j) + "].c[" + str(id) + "]"][t_n]
     return data
