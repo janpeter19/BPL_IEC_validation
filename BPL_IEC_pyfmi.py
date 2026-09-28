@@ -190,8 +190,10 @@ lines = ["-", "--", ":", "-."]
 import numpy as np
 
 def profile(t_n, id, sim_res):
+    """ Define profile for standard diagrams"""
     data = np.zeros(9)
     data[0] = sim_res["time"][t_n]
     for j in list(range(1, 9)):
         data[j] = sim_res["column.column_section[" + str(j) + "].c[" + str(id) + "]"][t_n]
     return data
+

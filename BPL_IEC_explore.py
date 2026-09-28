@@ -1,4 +1,4 @@
-# setup application functions BPL_IEC_validation dependent on previous import of functions from fmu_explore
+# Setup application functions BPL_IEC_validation dependent on previous import of functions from fmu_explore
 # Author: Jan Peter Axelsson
 # ------------------------------------------------------------------------------------------------------------------
 # 2026-08-28 - Created
@@ -14,11 +14,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # -------------------------------------------------------------------------------------------------
-#  Specific application functions: newplot(), profile(), describe()
+#  Specific application functions: newplot(), describe()
 # -------------------------------------------------------------------------------------------------
 
 
-# Define standard diagrams
 def newplot(title="IEC", plotType="Loading"):
     """Standard plot window
     title = ''"""
@@ -982,7 +981,6 @@ def newplot(title="IEC", plotType="Loading"):
         print("Plot window type not correct")
 
 
-# Define and extend describe for the current application
 def describe(name, decimals=3):
     """Look up description of culture, media, as well as parameters and variables in the model code"""
 

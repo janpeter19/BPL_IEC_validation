@@ -1,21 +1,21 @@
-# setup application functions BPL_IEC_fmpy_explore dependent on previous import of functions from fmu_explore
+# Setup application functions BPL_IEC_fmpy_explore dependent on previous import of functions from fmu_explore
 # Author: Jan Peter Axelsson
 # ------------------------------------------------------------------------------------------------------------------
 # 2026-09-09 - Created
-# 2026-09-25 - Decrease the framework to what is necessary and move matlotlib and numpy to the other setup-file
+# 2026-09-25 - Brought in matlotlib since used here and numpy also
 # 2026-09-25 - Change indentaiton from 3 spaces to 4 using black
 # ------------------------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 #  Framework
-# -------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# -------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 #  Specific application functions: newplot(), describe(), profile()
-# -------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
 
 def newplot(title="IEC", plotType="Loading"):
@@ -985,7 +985,6 @@ def newplot(title="IEC", plotType="Loading"):
         print("Plot window type not correct")
 
 
-# Define and extend describe for the current application
 def describe(name, decimals=3):
     """Look up description of culture, media, as well as parameters and variables in the model code"""
 
@@ -1056,8 +1055,9 @@ def describe(name, decimals=3):
         describe_general(name, decimals)
 
 
-# ------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 #  Startup
-# ------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
+
 
 FMU_explore_info()
