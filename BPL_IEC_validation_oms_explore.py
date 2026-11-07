@@ -50,9 +50,7 @@ def newplot(title="IEC", plotType="Loading"):
 
         # Part of plot made after simulation
         diagrams.clear()
-        diagrams.append(
-            "ax[0].plot(list(range(1,9)), profile(10, 4, t, sim_res)[1:], color='b', linestyle=linetype)"
-        )
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(10, 4, t, sim_res)[1:], color='b', linestyle=linetype)")
         diagrams.append("ax[0].plot(list(range(1,9)), profile(50,4, t, sim_res)[1:], 'b')")
         diagrams.append("ax[0].plot(list(range(1,9)), profile(150,4, t, sim_res)[1:], 'b')")
         diagrams.append("ax[0].plot(list(range(1,9)), profile(200,4, t, sim_res)[1:], 'b')")
