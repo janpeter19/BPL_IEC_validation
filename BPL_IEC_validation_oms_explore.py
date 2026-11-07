@@ -104,7 +104,7 @@ def newplot(title="IEC", plotType="Loading"):
         # Part of plot made after simulation
         diagrams.clear()
         diagrams.append(
-            "ax[0].plot(,  t, sim_res['Column_system.tank_mixing.outlet.c[1]'], color='b', linestyle=linetype)"
+            "ax[0].plot(t, sim_res['Column_system.tank_mixing.outlet.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
             "ax[1].plot(list(range(1,9)), profile(10,4, t, sim_res)[1:], color='b', linestyle=linetype)"
