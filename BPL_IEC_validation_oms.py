@@ -6,7 +6,7 @@
 # 2026-09-25 - Decrease the framework to what is necessary and move matlotlib and numpy to the other setup-file
 # 2026-09-25 - Change indentaiton from 3 spaces to 4 using black
 # 2026-10-12 - Modified setup-file for oms
-# 2026-11-07 - Changed external_function profile() and the ref to sim_res['time'] to just t
+# 2026-11-07 - Changed external_function profile() and the ref to sim_res['time'] to Application.t
 # ------------------------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ def profile(t_n, id, sim_res):
     """ Define profile for standard diagrams"""
     data = np.zeros(9)
     #data[0] = sim_res["time"][t_n]
-    data[0] = t[t_n]
+    data[0] = Application.t[t_n]
     for j in list(range(1, 9)):
         data[j] = sim_res["column.column_section[" + str(j) + "].c[" + str(id) + "]"][t_n]
     return data
