@@ -198,11 +198,11 @@ def newplot(title="IEC", plotType="Loading"):
         # Part of plot made after simulation
         diagrams.clear()
         diagrams.append(
-            "ax[0].plot(t-parValue['start_desorption']/model.get('control_desorption_buffer.scaling'), \
+            "ax[0].plot(t-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['Column_system.column.column_section[8].outlet.c[1]'], label='P', color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[0].plot(t-parValue['start_desorption']/model.get('control_desorption_buffer.scaling'), \
+            "ax[0].plot(t-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                                 sim_res['Column_system.column.column_section[8].outlet.c[2]'], label='A', color='r', linestyle=linetype)"
         )
         diagrams.append("ax[0].set_xlim(left=0)")
@@ -210,11 +210,11 @@ def newplot(title="IEC", plotType="Loading"):
         diagrams.append("ax[0].legend()")
 
         diagrams.append(
-            "ax[1].plot(t-parValue['start_desorption']/model.get('control_desorption_buffer.scaling'), \
-                                sim_res['uv_detector.value'], label='UV', color='k', linestyle=linetype)"
+            "ax[1].plot(t-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
+                                sim_res['Column_system.uv_detector.value'], label='UV', color='k', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(t-parValue['start_desorption']/model.get('control_desorption_buffer.scaling'), \
+            "ax[1].plot(t-parValue['start_desorption']/model_get('control_desorption_buffer.scaling'), \
                            0.05*sim_res['Column_system.column.column_section[8].outlet.c[3]'], label='salt', color='m', linestyle=linetype)"
         )
         diagrams.append("ax[1].set_xlim(left=0)")
