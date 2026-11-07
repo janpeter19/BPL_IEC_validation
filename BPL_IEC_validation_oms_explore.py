@@ -30,9 +30,6 @@ def newplot(title="IEC", plotType="Loading"):
     # Reset pens
     resetPen()
     
-    # Fix
-    model_get = Application.model_get
-
     # Plot diagram
     if plotType == "Loading":
 
