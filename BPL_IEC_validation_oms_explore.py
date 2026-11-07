@@ -50,29 +50,29 @@ def newplot(title="IEC", plotType="Loading"):
         # Part of plot made after simulation
         diagrams.clear()
         diagrams.append(
-            "ax[0].plot(list(range(1,9)), profile(10,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[0].plot(list(range(1,9)), profile(10, 4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(50,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(150,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(200,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(250,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(300,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(350,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(400,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(450,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(500,4,sim_res)[1:], 'b')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(10,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(50,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(150,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(200,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(250,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(300,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(350,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(400,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(450,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[0].plot(list(range(1,9)), profile(500,5,sim_res)[1:], 'r')")
-        diagrams.append("ax[1].plot(list(range(1,9)), profile(500,4,sim_res)[1:], 'b*-')")
-        diagrams.append("ax[1].plot(list(range(1,9)), profile(500,5,sim_res)[1:], 'r*-')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(50,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(150,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(200,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(250,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(300,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(350,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(400,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(450,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(500,4, t, sim_res)[1:], 'b')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(10,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(50,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(150,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(200,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(250,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(300,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(350,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(400,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(450,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[0].plot(list(range(1,9)), profile(500,5, t, sim_res)[1:], 'r')")
+        diagrams.append("ax[1].plot(list(range(1,9)), profile(500,4, t, sim_res)[1:], 'b*-')")
+        diagrams.append("ax[1].plot(list(range(1,9)), profile(500,5, t, sim_res)[1:], 'r*-')")
 
     elif plotType == "Loading-combined":
 
@@ -105,76 +105,76 @@ def newplot(title="IEC", plotType="Loading"):
         # Part of plot made after simulation
         diagrams.clear()
         diagrams.append(
-            "ax[0].plot(, sim_res['tank_mixing.outlet.c[1]'], color='b', linestyle=linetype)"
+            "ax[0].plot(,  t, sim_res['tank_mixing.outlet.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(10,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(10,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(50,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(50,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(150,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(150,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(200,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(200,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(250,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(250,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(300,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(300,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(350,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(350,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(400,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(400,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(450,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(450,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(500,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(500,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(10,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(10,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(50,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(50,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(150,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(150,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(200,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(200,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(250,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(250,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(300,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(300,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(350,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(350,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(400,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(400,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(450,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(450,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(list(range(1,9)), profile(500,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[1].plot(list(range(1,9)), profile(500,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
         diagrams.append(
             "ax[2].plot(t, sim_res['tank_waste.V'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[3].plot(list(range(1,9)), profile(500,4,sim_res)[1:], color='b', linestyle=linetype)"
+            "ax[3].plot(list(range(1,9)), profile(500,4, t, sim_res)[1:], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[3].plot(list(range(1,9)), profile(500,5,sim_res)[1:], color='r', linestyle=linetype)"
+            "ax[3].plot(list(range(1,9)), profile(500,5, t, sim_res)[1:], color='r', linestyle=linetype)"
         )
 
     elif plotType == "Elution":
