@@ -182,7 +182,6 @@ import numpy as np
 def profile(t_n, id, t, sim_res):
     """ Define profile for standard diagrams"""
     data = np.zeros(9)
-    #data[0] = sim_res["time"][t_n]
     data[0] = t[t_n]
     for j in list(range(1, 9)):
         data[j] = sim_res["Column_system.column.column_section[" + str(j) + "].c[" + str(id) + "]"][t_n]
