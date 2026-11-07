@@ -480,16 +480,16 @@ def newplot(title="IEC", plotType="Loading"):
         diagrams.append("ax[0].legend()")
 
         diagrams.append(
-            "ax[1].step(t, sim_res['tank_sample.Fsp'], color='g', linestyle=linetype)"
+            "ax[1].step(t, sim_res['Column_system.tank_sample.Fsp'], color='g', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[2].plot(t, sim_res['tank_buffer1.Fsp'], color='g', linestyle=linetype)"
+            "ax[2].plot(t, sim_res['Column_system.tank_buffer1.Fsp'], color='g', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[3].plot(t, sim_res['tank_buffer2.Fsp'], color='g', linestyle=linetype)"
+            "ax[3].plot(t, sim_res['Column_system.tank_buffer2.Fsp'], color='g', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[4].step(t, sim_res['tank_harvest.V'], color='g', linestyle=linetype)"
+            "ax[4].step(t, sim_res['Column_system.tank_harvest.V'], color='g', linestyle=linetype)"
         )
 
     elif plotType == "Elution-vs-volume-combined":
