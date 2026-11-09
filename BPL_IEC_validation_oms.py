@@ -7,6 +7,7 @@
 # 2026-09-25 - Change indentaiton from 3 spaces to 4 using black
 # 2026-10-12 - Modified setup-file for oms
 # 2026-11-07 - Changed external_function profile() and the ref to sim_res['time'] to t and prefix Column_system
+# 2026-11-09 - Changed options to store just 512 data point per variable, similar as for pyfmi, fmpy
 # ------------------------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -50,9 +51,6 @@ elif platform.system() == "Linux":
     else:
         print("There is no FMU for this platform")
 
-# Options
-options = []
-
 # Provide various MSL and BPL versions
 if flag_vendor in ["JM", "jm"]:
     MSL_usage = model.get("MSL.usage")[0]
@@ -71,6 +69,10 @@ else:
 
 # Simulation time
 simulationTime = 100.0
+
+# Options
+#options = []
+options = ['self.model.setLoggingInterval(simulationTime/512)']
 
 # Dictionary of time discrete states
 timeDiscreteStates = {}
