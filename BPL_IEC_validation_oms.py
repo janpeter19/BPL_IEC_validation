@@ -71,8 +71,7 @@ else:
 simulationTime = 100.0
 
 # Options
-#options = []
-options = ['self.model.setLoggingInterval(simulationTime/525)']
+options = ['self.model.setLoggingInterval(simulationTime/550)']
 
 # Dictionary of time discrete states
 timeDiscreteStates = {}
