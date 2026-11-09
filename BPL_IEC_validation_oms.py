@@ -72,7 +72,7 @@ simulationTime = 100.0
 
 # Options
 #options = []
-options = ['self.model.setLoggingInterval(simulationTime/512)']
+options = ['self.model.setLoggingInterval(simulationTime/525)']
 
 # Dictionary of time discrete states
 timeDiscreteStates = {}
