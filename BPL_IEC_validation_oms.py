@@ -8,6 +8,7 @@
 # 2026-10-12 - Modified setup-file for oms
 # 2026-11-07 - Changed external_function profile() and the ref to sim_res['time'] to t and prefix Column_system
 # 2026-11-09 - Changed options to store just 512 data point per variable, similar as for pyfmi, fmpy
+# 2026-11-19 - Corrected options including now self.simulationTime instead of just simulationTime
 # ------------------------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -71,7 +72,7 @@ else:
 simulationTime = 100.0
 
 # Options
-options = ['self.model.setLoggingInterval(simulationTime/550)']
+options = ['self.model.setLoggingInterval(self.simulationTime/550)']
 
 # Dictionary of time discrete states
 timeDiscreteStates = {}
