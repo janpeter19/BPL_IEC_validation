@@ -8,6 +8,7 @@
 # 2026-10-12 - Rudimentary function descxribe()
 # 2026-11-07 - Changed sim_res['time'] to t
 # 2026-11-07 - Use prefix Column_system for all variables logged
+# 2026-11-25 - Now component_list_minimum is handled as a parameter the class of FMU_explore
 # ------------------------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -1045,7 +1046,7 @@ def describe(name, decimals=3):
         )
 
     elif name in ["parts"]:
-        describe_parts(component_list_minimum)
+        describe_parts()
 
     elif name in ["MSL"]:
         describe_MSL()
@@ -1066,7 +1067,7 @@ FMU_explore_info()
 #------------------------------------------------------------------------------------------------------------------
 
 del parValue, parLocation, parCheck
-del fmu_model, fmu_process_diagram
+del fmu_model, fmu_process_diagram, component_list_minimum
 del MSL_usage, MSL_version, BPL_version
 del options, simulationTime, timeDiscreteStates
 del flag_type, flag_vendor
